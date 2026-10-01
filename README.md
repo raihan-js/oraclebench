@@ -15,6 +15,8 @@ The 0.5B judge rubber-stamps arithmetic (94% false-accept) while both judges bla
 
 **Pairwise judging is broken**: both judges pick answer B 85–92% of the time regardless of correctness. Verbosity padding on the correct answer makes it worse.
 
+**Self-preference: not detected.** Qwen-3B judge false-accepts 15.8% on Qwen-3B outputs vs 12.3% on Qwen-0.5B outputs (CIs overlap); Qwen-0.5B judge 94.0% vs 92.6% (CIs overlap). Generator identity doesn't matter — judge capability dominates. The 0.5B judge rubber-stamps everything from both generators.
+
 **Checker-first harness** (oracles first, judge only on uncovered):
 
 | Setup | Errors | Judge calls | Judge GPU-s |
