@@ -26,7 +26,7 @@ Grade small open LLM-as-judge setups against deterministic oracles. Measure fals
 - **Three oracles, all reused:** FedProc registry check, GSM8K exact arithmetic, IFEval 25-rule checkers — copied from `../flipgate/src/flipgate/scorers/` (with attribution note), NOT imported cross-project.
 - **Natural errors are free:** flipgate's JSONL store holds 4,000+ evaluated items with scores; wrong answers = natural-error slice. No extra generation needed.
 - **Corrupted slice is synthetic:** fabricated FAR clause swap, off-by-one arithmetic step, one broken IFEval rule — built by perturbing correct answers deterministically.
-- **Two judges:** Qwen2.5-3B-Instruct (have it) + Llama-3.2-3B-Instruct (~6GB download). Pointwise AND pairwise formats. Position bias via A/B swap; verbosity bias via padded-but-equal answers; self-preference via Qwen-judging-Qwen.
+- **Two judges:** Qwen2.5-3B-Instruct + Qwen2.5-0.5B-Instruct (both on disk — doubles as a judge-size comparison). Llama-3.2-3B is gated on HF (no access with current token); swap it in if access is granted. Pointwise AND pairwise formats. Position bias via A/B swap; verbosity bias via padded-but-equal answers; self-preference via Qwen-judging-Qwen.
 - **Harness wins by construction** wherever a checker exists — the reported results are false-accept rates and the cost (GPU-seconds, tokens) of calling a judge where a check sufficed.
 
 ### Hardware
