@@ -1,3 +1,5 @@
+![oraclebench results](https://raw.githubusercontent.com/raihan-js/oraclebench/main/images/oraclebench.png)
+
 # My LLM Judge Approved a Fake Legal Clause 13% of the Time (and a Smaller One 36%)
 
 *Grading small open judges against deterministic oracles — plus the harness that makes most judge calls unnecessary.*
