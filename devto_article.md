@@ -1,6 +1,6 @@
-![oraclebench results](https://raw.githubusercontent.com/raihan-js/oraclebench/main/images/oraclebench.png)
+![oraclebench results](https://raw.githubusercontent.com/raihan-js/oraclebench/HEAD/images/oraclebench.png)
 
-# My LLM Judge Approved a Fake Legal Clause 13% of the Time (and a Smaller One 36%)
+# Two Small LLM Judges Approved 13% and 36% of Wrong Answers (and Picked B 85–92% of the Time)
 
 *Grading small open judges against deterministic oracles — plus the harness that makes most judge calls unnecessary.*
 
@@ -15,6 +15,8 @@ Everyone uses LLM-as-judge. Existing benchmarks (JudgeBench, RewardBench) alread
 OracleBench grades two small open judges (Qwen2.5-3B and Qwen2.5-0.5B) against three deterministic oracles: the FAR/DFARS registry, GSM8K arithmetic, and 25 rule-based IFEval checkers. Item bank: 1,655 verified items (608 natural errors, 620 synthetic corruptions, 427 correct answers), each with frozen provenance.
 
 ## False-Accept Rates
+
+The headline 13.2% and 36.1% are the overall false-accept rate: the share of oracle-wrong answers (across GSM8K, IFEval and the FAR registry) that the judge called CORRECT. They are dominated by arithmetic; on clause citations the judges accept almost nothing (see below).
 
 | Judge | Overall | 95% CI | GSM8K | IFEval | FedProc |
 |---|---|---|---|---|---|

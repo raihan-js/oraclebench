@@ -1,5 +1,7 @@
 # OracleBench
 
+![OracleBench results](images/oraclebench.png)
+
 Grade small open LLM-as-judge setups against deterministic oracles — and ship the harness that makes most judge calls unnecessary.
 
 ## Results
@@ -28,7 +30,7 @@ The 0.5B judge rubber-stamps arithmetic (94% false-accept) while both judges bla
 
 ## Status
 
-Milestones 1–3 complete. Write-up pending. See `AGENTS.md`.
+Complete: 14 tests, results above, [dataset on Hugging Face](https://huggingface.co/datasets/raihan-js/oraclebench-items). See `AGENTS.md`.
 
 ## Limitations (read before citing)
 
