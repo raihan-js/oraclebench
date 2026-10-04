@@ -57,7 +57,7 @@ The constructive result. A 60-line router: run applicable checkers first, call t
 | Checker-first | **0/1655 (0.0%)** | 100 | 15 |
 | Judge-only | 429/1655 (25.9%) | 1,655 | 275 |
 
-94.3% of items route to checkers. **18× fewer judge calls at zero error cost** — because oracles are ground truth where they apply. The remaining 100 uncovered items (subjective summary preferences) still need judges; that's the honest boundary of the method.
+94.3% of items route to checkers. **16.6× fewer judge calls (1,655 → 100) and ~18× less judge time (275 s → 15 s), at zero error cost on oracle-covered items** — because oracles are ground truth where they apply. The remaining 100 uncovered items (subjective summary preferences) still need judges; that's the honest boundary of the method.
 
 ## Limitations
 
