@@ -57,3 +57,19 @@ class TestFedProcOracle:
     def test_hallucinated_list(self, registry):
         s = FedProcRegistryScorer(registry=registry)
         assert s.get_hallucinated_clauses("FAR 52.203-1 and FAR 99.999-9") == ["99.999-9"]
+
+
+class TestGSM8KOracleV2:
+    ref = {"answer": "work\n#### 1,250"}
+
+    def test_boxed_and_thousands_separator(self):
+        from oraclebench.oracles.gsm8k import GSM8KScorer
+        assert GSM8KScorer().score("q", "so \\(\\boxed{1,250}\\)", self.ref) == 1.0
+
+    def test_v1_is_kept_and_misreads_commas(self):
+        from oraclebench.oracles.gsm8k import GSM8KScorerV1
+        assert GSM8KScorerV1().extract_answer("the answer is 1,250") == 1.0
+
+    def test_truncated_text_scores_zero(self):
+        from oraclebench.oracles.gsm8k import GSM8KScorer
+        assert GSM8KScorer().score("q", "so the total is 80,000 + 120,0", self.ref) == 0.0

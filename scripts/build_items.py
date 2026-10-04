@@ -21,6 +21,20 @@ from oraclebench.oracles.gsm8k import GSM8KScorer
 from oraclebench.oracles.ifeval import IFEvalScorer
 
 FLIPGATE_RESULTS = "../flipgate/data/results"
+GSM8K_RUN: str | None = None  # explicit flipgate run id for GSM8K items (set by --gsm8k-run)
+
+
+def _gsm8k_target():
+    """The flipgate GSM8K run to draw natural / corrupted / correct items from."""
+    from pathlib import Path
+    if GSM8K_RUN:
+        return Path(FLIPGATE_RESULTS) / GSM8K_RUN
+    return _find_run("gsm8k", "bf16", 1000)
+
+
+def _complete(item: dict) -> bool:
+    """False if the run recorded that this response hit the generation cap (truncated)."""
+    return (item.get("metadata") or {}).get("finish_reason") != "length"
 REGISTRY_PATH = "../flipgate/data/eval/far_registry.json"
 
 
@@ -57,7 +71,7 @@ def natural_gsm8k(n: int, rng: random.Random) -> list[dict]:
     """
     from oraclebench.oracles.gsm8k import GSM8KScorer
     scorer = GSM8KScorer()
-    target = _find_run("gsm8k", "bf16", 1000)
+    target = _gsm8k_target()
     if target is None:
         print("  no 1000-item bf16 run found, skipping natural/gsm8k")
         return []
@@ -66,6 +80,8 @@ def natural_gsm8k(n: int, rng: random.Random) -> list[dict]:
     with open(target / "gsm8k.jsonl") as f:
         for line in f:
             it = json.loads(line)
+            if not _complete(it):
+                continue  # truncated at the generation cap: not a real wrong answer
             ref = {"answer": answers.get(it["item_id"], "")}
             if scorer.score(it["prompt"], it["response"], ref) != 1.0:
                 wrong.append({
@@ -83,7 +99,7 @@ def natural_gsm8k(n: int, rng: random.Random) -> list[dict]:
 
 def corrupted_gsm8k(n: int, rng: random.Random) -> list[dict]:
     """Off-by-one arithmetic: take correct answers, shift final number by ±1."""
-    target = _find_run("gsm8k", "bf16", 1000)
+    target = _gsm8k_target()
     if target is None:
         print("  no 1000-item bf16 run found, skipping corrupted/gsm8k")
         return []
@@ -92,7 +108,7 @@ def corrupted_gsm8k(n: int, rng: random.Random) -> list[dict]:
     with open(target / "gsm8k.jsonl") as f:
         for line in f:
             it = json.loads(line)
-            if it["score"] != 1.0:
+            if it["score"] != 1.0 or not _complete(it):
                 continue
             # FlipGate bf16 responses use LaTeX \boxed{N}; fall back to #### N
             m = re.search(r"\\boxed\{(\d+\.?\d*)\}", it["response"])
@@ -333,6 +349,8 @@ def correct_slice(rng: random.Random, per_oracle: int = 150) -> list[dict]:
         ds = meta.get("dataset")
         if ds not in ("gsm8k", "ifeval", "fedproc") or counts[ds] >= per_oracle:
             continue
+        if ds == "gsm8k" and GSM8K_RUN and run_dir.name != GSM8K_RUN:
+            continue
         path = run_dir / f"{ds}.jsonl"
         if not path.exists():
             continue
@@ -341,6 +359,8 @@ def correct_slice(rng: random.Random, per_oracle: int = 150) -> list[dict]:
                 if counts[ds] >= per_oracle:
                     break
                 it = json.loads(line)
+                if not _complete(it):
+                    continue
                 if ds == "gsm8k":
                     ref = {"answer": answers.get(it["item_id"], "")}
                 elif ds == "ifeval":
@@ -370,7 +390,10 @@ def main() -> None:
     ap.add_argument("--n-corrupted", type=int, default=600)
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--out", default="data/items.jsonl")
+    ap.add_argument("--gsm8k-run", default=None, help="flipgate run id to draw GSM8K items from")
     args = ap.parse_args()
+    global GSM8K_RUN
+    GSM8K_RUN = args.gsm8k_run
     rng = random.Random(args.seed)
 
     with open(REGISTRY_PATH) as f:

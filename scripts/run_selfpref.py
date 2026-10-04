@@ -25,6 +25,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=200)
     ap.add_argument("--seed", type=int, default=21)
+    ap.add_argument("--max-new-tokens", type=int, default=1024,
+                    help="generation cap; answers that hit it are dropped (the original run capped at 256 and truncated most)")
     args = ap.parse_args()
 
     import random
@@ -61,9 +63,11 @@ def main() -> None:
                                                 add_generation_prompt=True)
             inputs = tok(formatted, return_tensors="pt").to(model.device)
             with torch.no_grad():
-                out = model.generate(**inputs, max_new_tokens=256, do_sample=False)
-            resp = tok.decode(out[0][inputs.input_ids.shape[1]:],
-                              skip_special_tokens=True)
+                out = model.generate(**inputs, max_new_tokens=args.max_new_tokens, do_sample=False)
+            gen = out[0][inputs.input_ids.shape[1]:].tolist()
+            if len(gen) >= args.max_new_tokens and tok.eos_token_id not in gen:
+                continue  # truncated at the cap: not a real wrong answer, skip it
+            resp = tok.decode(gen, skip_special_tokens=True)
             score = scorer.score(item["question"], resp, {"answer": item["answer"]})
             f.write(json.dumps({"id": qid, "oracle": "gsm8k",
                                 "prompt": item["question"], "answer": resp,
