@@ -1,6 +1,6 @@
 ![oraclebench results](https://raw.githubusercontent.com/raihan-js/oraclebench/HEAD/images/oraclebench.png)
 
-# Two Small LLM Judges Approved 13% and 36% of Wrong Answers (and Picked B 85–92% of the Time)
+# Two Small LLM Judges Approved 10–13% and 33–36% of Wrong Answers (and Picked B 85–92% of the Time)
 
 *Grading small open judges against deterministic oracles — plus the harness that makes most judge calls unnecessary.*
 
@@ -16,7 +16,7 @@ OracleBench grades two small open judges (Qwen2.5-3B and Qwen2.5-0.5B) against t
 
 ## False-Accept Rates
 
-The headline 13.2% and 36.1% are the overall false-accept rate: the share of oracle-wrong answers (across GSM8K, IFEval and the FAR registry) that the judge called CORRECT. They are dominated by arithmetic; on clause citations the judges accept almost nothing (see below).
+The headline 13.2% and 36.1% (10.5% and 33.4% after the label cleaning described below) are the overall false-accept rate: the share of oracle-wrong answers (across GSM8K, IFEval and the FAR registry) that the judge called CORRECT. They are dominated by arithmetic; on clause citations the judges accept almost nothing (see below).
 
 | Judge | Overall | 95% CI | GSM8K | IFEval | FedProc |
 |---|---|---|---|---|---|
@@ -28,6 +28,17 @@ Three things stand out:
 1. **The 0.5B judge rubber-stamps arithmetic** — 94% false-accept on wrong math. It says CORRECT to nearly everything on GSM8K (98.7% true-accept too). It isn't judging; it's agreeing.
 2. **Both judges blanket-reject clause citations** — 0.5%/2.0% false-accept looks great until you see 0.0% true-accept. They reject all clause answers, right or wrong. Low false-accept via zero discrimination.
 3. **Synthetic corruptions are far easier to catch** (2.7% vs 23.8% for the 3B judge). If you only test judges on obvious corruptions, you flatter them ~9×. Always keep a natural slice.
+
+### Label noise in the GSM8K "errors"
+
+The natural GSM8K errors come from [FlipGate](https://github.com/raihan-js/flipgate)'s bf16 run, which used a 256-token generation cap and a strict answer extractor. Re-scoring those answers with a more robust extractor finds the correct answer in **51 of the 398** items labelled "oracle-wrong" (all among the 300 natural ones), so some "false accepts" are correct judgments. Excluding those 51:
+
+| Judge | Overall false-accept, as published | Excluding mislabelled | GSM8K, as published | GSM8K, excluding |
+|---|---|---|---|---|
+| Qwen2.5-3B | 13.2% | 10.5% | 15.8% | 7.2% |
+| Qwen2.5-0.5B | 36.1% | 33.4% | 94.0% | 93.4% |
+
+The 3B judge looks better than first reported; the 0.5B judge approves nearly everything either way. The robust extractor is itself a heuristic, so read the two columns as a range. `scripts/label_noise_sensitivity.py` reproduces this.
 
 ## Pairwise Judging Collapses
 
@@ -51,6 +62,7 @@ The constructive result. A 60-line router: run applicable checkers first, call t
 ## Limitations
 
 - Judges ≤3B local; no frontier claims.
+- GSM8K error labels inherit a scorer artefact from the FlipGate run they came from (51 of 398 mislabelled), so the headline is a range.
 - Synthetic corruptions easier than natural errors; slices separate.
 - FedProc low-FA is blanket rejection, stated plainly.
 - Judge prompts frozen (v1 in repo); different prompts, different numbers.
