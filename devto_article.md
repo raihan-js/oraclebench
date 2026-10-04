@@ -10,7 +10,7 @@
 
 ## The Setup
 
-Everyone uses LLM-as-judge. Existing benchmarks (JudgeBench, RewardBench) already measure judges in general. What they don't have is what I have: a **real legal oracle**. My definition of a hallucinated FAR clause — "a clause number not in the 1,032-clause eCFR registry" — needs no human and no judge. It's ground truth by construction.
+Everyone uses LLM-as-judge. Existing benchmarks (JudgeBench, RewardBench) already measure judges in general. What they don't have is what I have: a **real legal oracle**. My definition of a hallucinated FAR clause — "a clause number not in the FAR/DFARS registry (1,128 entries from eCFR Title 48)" — needs no human and no judge. It's ground truth by construction.
 
 OracleBench grades two small open judges (Qwen2.5-3B and Qwen2.5-0.5B) against three deterministic oracles: the FAR/DFARS registry, GSM8K arithmetic, and 25 rule-based IFEval checkers. Item bank: 1,655 verified items (608 natural errors, 620 synthetic corruptions, 427 correct answers), each with frozen provenance.
 
