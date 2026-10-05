@@ -41,3 +41,4 @@ models/
 
 # Logs
 *.log
+data_v1_truncated_labels/

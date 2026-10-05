@@ -39,18 +39,15 @@ Python, PyTorch, HF Transformers. No vLLM (judge calls are low-throughput; HF ge
 
 ### Milestones (~17 days)
 
-1. **Oracle item bank** (5d) — ✅ COMPLETE (1,655 verified items + 100 uncovered: 608 natural + 620 corrupted + 427 correct; oracle-agreement gate drops stale scores).
-2. **Judge sweep** (5d) — ✅ COMPLETE (pointwise 1,655×2 judges + pairwise 198×2 orders×2 judges):
-   - False-accept: qwen3b 13.2% [11.4%, 15.1%], qwen05b 36.1% [33.4%, 38.7%]
-   - Per-oracle: GSM8K FA 15.8%/94.0% (3b/0.5b); IFEval 22.1%/13.9%; FedProc 0.5%/2.0% (both judges blanket-reject clauses: TA 0.0%)
-   - Natural 23.8% vs corrupted 2.7% (3b) — synthetic errors far easier to catch
-   - **Position bias: both judges pick B 85-92% regardless of correctness** (AB wrong-pick 15%/12% vs BA 85%/92%)
-   - Verbosity hurts padded-correct answers (3b AB: 15%→50% wrong-picks)
-3. **Checker-first harness** (4d) — ✅ COMPLETE (`oraclebench/harness.py`, 6 tests):
-   - Harness: 0 errors, 100 judge calls, 15 GPU-s
-   - Judge-only: 429 errors (25.9%), 1,655 judge calls, 275 GPU-s
-   - 94.3% routed to checkers; 18× fewer judge calls at zero error cost
-4. **Write-up** (3d) — pending: HF dataset, dev.to post.
+1. **Oracle item bank** — ✅ REBUILT 2026-10-05 from the 1,024-token FlipGate run (the first bank used labels from a 256-token run; 51 of 398 "wrong" were right): 1,760 verified items + 100 uncovered: 511 natural + 822 corrupted + 427 correct.
+2. **Judge sweep** — ✅ RE-RUN (`scripts/summarize.py` -> `results/summary.json`):
+   - False-accept: qwen3b 11.0% [9.5%, 12.8%], qwen05b 40.6% [38.0%, 43.2%] (n=1,333 oracle-wrong)
+   - Per-oracle FA: GSM8K 10.1%/94.8%; IFEval 21.4%/13.7%; FedProc 0.5%/1.0% (blanket rejection: TA 0.0%)
+   - Natural 23.5% vs corrupted 3.3% (3b) — synthetic errors ~7x easier to catch
+   - **Pairwise (matched pairs, same prompt):** 3b picks the right answer 80.5% [76.6, 83.8] with a position bias (94% right-in-B vs 67% right-in-A); 0.5b at chance (53.8%), picks slot B 83%. The first pairwise probe paired a wrong answer with a right answer to a DIFFERENT question (position bias only; its "both pick B 85-92%" claim is retired).
+   - **Self-preference:** unmatched questions 19.7% vs 0.9% (confounded, not evidence); matched on the same 165 questions 14.5% vs 5.5%, exact McNemar p = 0.0015 (3b judge); 0.5b judge rubber-stamps (92.7% both). Cannot be separated from error subtlety (all Qwen).
+3. **Checker-first harness** — ✅ (`oraclebench/harness.py`, 6 tests): 0/1,760 errors vs judge-only 412 (23.4%); 100 vs 1,760 judge calls (17.6x), 22 vs 448 GPU-s; 94.6% of 1,860 items routed to checkers. The zero is by construction.
+4. **Write-up** — ✅ HF dataset (rebuilt, with judge outputs), article rewritten (leads with what had to be redone).
 
 ### Risks to keep honest
 

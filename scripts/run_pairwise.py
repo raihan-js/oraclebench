@@ -38,6 +38,9 @@ def main() -> None:
     ap.add_argument("--n", type=int, default=200)
     ap.add_argument("--seed", type=int, default=11)
     ap.add_argument("--out-dir", default="data/judge_runs")
+    ap.add_argument("--matched", action="store_true",
+                    help="pair each wrong answer with a correct answer to the SAME prompt (the default pairs a wrong "
+                         "answer with a correct answer from a different item, so it only measures position/verbosity bias)")
     args = ap.parse_args()
 
     import os
@@ -57,7 +60,20 @@ def main() -> None:
 
     pairs = []
     per = args.n // 3
-    for oracle in ["gsm8k", "ifeval", "fedproc"]:
+    if args.matched:
+        by_prompt = {}
+        for it in correct:
+            by_prompt.setdefault((it["oracle"], it["prompt"]), it)
+        for oracle in ["gsm8k", "ifeval", "fedproc"]:
+            ws = [w for w in by_oracle_w.get(oracle, []) if (oracle, w["prompt"]) in by_prompt]
+            rng.shuffle(ws)
+            for w in ws[:per]:
+                c = by_prompt[(oracle, w["prompt"])]
+                pairs.append({"oracle": oracle, "prompt": w["prompt"], "wrong": w["answer"],
+                              "right": c["answer"], "reference": w["reference"],
+                              "wrong_provenance": w["provenance"]})
+    else:
+      for oracle in ["gsm8k", "ifeval", "fedproc"]:
         ws = by_oracle_w.get(oracle, [])[:]
         cs = by_oracle_c.get(oracle, [])[:]
         rng.shuffle(ws)
@@ -68,7 +84,7 @@ def main() -> None:
                           "wrong": w["answer"], "right": c["answer"],
                           "reference": w["reference"]})
 
-    out_path = f"{args.out_dir}/{args.judge}_pairwise.jsonl"
+    out_path = f"{args.out_dir}/{args.judge}_pairwise{'_matched' if args.matched else ''}.jsonl"
     done = set()
     if os.path.exists(out_path):
         with open(out_path) as f:

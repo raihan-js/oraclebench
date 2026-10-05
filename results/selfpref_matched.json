@@ -1,0 +1,45 @@
+{
+  "n_questions": 165,
+  "judges": {
+    "qwen3b": {
+      "n": 165,
+      "accepts_3b_wrong": [
+        24,
+        [
+          10.0,
+          20.7
+        ]
+      ],
+      "accepts_05b_wrong": [
+        9,
+        [
+          2.9,
+          10.0
+        ]
+      ],
+      "only_3b_accepted": 18,
+      "only_05b_accepted": 3,
+      "mcnemar_p": 0.0014896392822265625
+    },
+    "qwen05b": {
+      "n": 165,
+      "accepts_3b_wrong": [
+        153,
+        [
+          87.7,
+          95.8
+        ]
+      ],
+      "accepts_05b_wrong": [
+        153,
+        [
+          87.7,
+          95.8
+        ]
+      ],
+      "only_3b_accepted": 6,
+      "only_05b_accepted": 6,
+      "mcnemar_p": 1.0
+    }
+  }
+}
