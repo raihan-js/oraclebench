@@ -2,6 +2,8 @@
 
 ![OracleBench results](images/oraclebench.png)
 
+Write-up: [Small LLM Judges Approved 11% and 41% of Wrong Answers. Then I Fixed My Own Pairwise Test.](https://dev.to/raihan-js/small-llm-judges-approved-11-and-41-of-wrong-answers-then-i-fixed-my-own-pairwise-test-3lpm)
+
 Grade small open LLM-as-judge setups against deterministic oracles — and ship the harness that makes most judge calls unnecessary.
 
 Scope, first: both judges are ≤3B local models (Qwen2.5-3B-Instruct and Qwen2.5-0.5B-Instruct). Nothing here carries over to frontier judges. Natural errors and synthetic corruptions are always reported separately.
